@@ -38,7 +38,7 @@ public class ImageGrid extends Canvas {
 	public ImageGrid(final Composite parent, final int style) {
 		super(parent, style | SWT.V_SCROLL | SWT.DOUBLE_BUFFERED);
 
-		this.addPaintListener(this::onPaint);
+		this.addPaintListener(new ImageGridRenderer(layout, this)::onPaint);
 		this.getVerticalBar().setVisible(false);
 		this.addControlListener(new ControlAdapter() {
 			@Override
@@ -204,58 +204,6 @@ public class ImageGrid extends Canvas {
 		bar.setVisible(clientArea.height < totalHeight);
 	}
 
-	protected void onPaint(final PaintEvent e) {
-		final int columns = this.layout.getColumns();
-
-		final int margin = this.layout.getMargin();
-
-		int x = margin;
-		int y = margin - this.getVerticalBar().getSelection();
-
-		final GC gc = e.gc;
-
-		for (int i = 0; i < this.items.size(); i++) {
-			if (this.checkNewLine(columns, i)) {
-				x = margin;
-				y += this.layout.getItemHeight() + this.layout.getSpacer();
-			}
-
-			final ImageItem item = this.items.get(i);
-
-			this.paint(gc, x, y, item);
-			x += this.layout.getItemWidth() + this.layout.getSpacer();
-		}
-	}
-
-
-	private boolean checkNewLine(final int columns, final int i) {
-		return (i != 0) && ((i % columns) == 0);
-	}
-
-	private void paint(final GC gc, final int x, final int y, final ImageItem item) {
-		gc.setAlpha(70);
-		gc.setBackground(gc.getDevice().getSystemColor(SWT.COLOR_GRAY));
-		gc.fillRectangle(x, y, this.layout.getItemWidth(), this.layout.getItemHeight());
-		if (this.selection.contains(item)) {
-			gc.setAlpha(255);
-			gc.setBackground(gc.getDevice().getSystemColor(SWT.COLOR_LIST_SELECTION));
-		}
-		else {
-			gc.setBackground(gc.getDevice().getSystemColor(SWT.COLOR_DARK_GRAY));
-		}
-
-		gc.fillRectangle(x, y, 10, this.layout.getItemHeight());
-
-		gc.setAlpha(255);
-		gc.drawText(item.getName(), x + 15, y + 5, true);
-
-		if (Objects.equals(item, this.focusItem)) {
-			//gc.getGCData().uiState = 0; // force focus paint
-			gc.drawFocus(x, y, this.layout.getItemWidth(), this.layout.getItemHeight());
-
-		}
-	}
-
 	public List<ImageItem> getItems() {
 		return this.items;
 	}
@@ -286,4 +234,11 @@ public class ImageGrid extends Canvas {
 		}
 	}
 
+	public boolean isSelected(ImageItem item) {
+		return this.selection.contains(item);
+	}
+
+	public ImageItem getFocusItem() {
+		return focusItem;
+	}
 }

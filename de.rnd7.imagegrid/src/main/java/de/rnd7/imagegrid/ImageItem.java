@@ -5,7 +5,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 public class ImageItem {
 	private String name;
 	private ImageDescriptor descriptor;
-
+	private Object data;
+	
 	public ImageDescriptor getDescriptor() {
 		return this.descriptor;
 	}
@@ -24,5 +25,13 @@ public class ImageItem {
 		this.name = name;
 
 		return this;
+	}
+	
+	public Object getData() {
+		return data;
+	}
+	
+	public void setData(Object data) {
+		this.data = data;
 	}
 }

@@ -10,3 +10,4 @@ Bundle-Localization: plugin
 Export-Package: de.rnd7.imagegrid
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.eclipse.core.runtime
