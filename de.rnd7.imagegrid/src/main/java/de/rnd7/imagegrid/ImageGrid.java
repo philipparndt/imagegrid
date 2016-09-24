@@ -31,11 +31,13 @@ public class ImageGrid extends Canvas {
 	private ImageItem focusItem = null;
 
 	private final boolean singleSelection = false;
+	
+	private final ImageCache cache = new ImageCache(this);
 
 	public ImageGrid(final Composite parent, final int style) {
 		super(parent, style | SWT.V_SCROLL | SWT.DOUBLE_BUFFERED);
 
-		this.addPaintListener(new ImageGridRenderer(layout, this)::onPaint);
+		this.addPaintListener(new ImageGridRenderer(layout, this, cache)::onPaint);
 		this.getVerticalBar().setVisible(false);
 		this.addControlListener(new ControlAdapter() {
 			@Override

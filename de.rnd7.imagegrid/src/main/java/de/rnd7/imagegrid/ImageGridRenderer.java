@@ -10,20 +10,25 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
 
 class ImageGridRenderer {
 
 	private static final int FONT_SIZE = 10;
-	private ImageGridLayout layout;
-	private ImageGrid grid;
-	private Font font;
-	private Color bgcolor;
-	private Color tagcolor;
+	private final ImageGridLayout layout;
+	private final ImageGrid grid;
+	private final Font font;
+	private final Color bgcolor;
+	private final Color tagcolor;
+	
+	private final ImageCache cache;
 
-	public ImageGridRenderer(ImageGridLayout layout, ImageGrid grid) {
+	public ImageGridRenderer(final ImageGridLayout layout, final ImageGrid grid, final ImageCache cache) {
 		this.layout = layout;
 		this.grid = grid;
+		this.cache = cache;
 
 		final FontDescriptor descriptor = JFaceResources.getDefaultFontDescriptor().setHeight(FONT_SIZE);
 		this.font = descriptor.createFont(grid.getDisplay());
@@ -38,15 +43,14 @@ class ImageGridRenderer {
 
 	public void onPaint(final PaintEvent e) {
 		final int columns = this.layout.getColumns();
-
 		final int margin = this.layout.getMargin();
 
 		int x = margin;
-		int y = margin - grid.getVerticalBar().getSelection();
+		int y = margin - this.grid.getVerticalBar().getSelection();
 
 		final GC gc = e.gc;
-		List<ImageItem> items = grid.getItems();
-		for (int i = 0; i < grid.getItems().size(); i++) {
+		final List<ImageItem> items = this.grid.getItems();
+		for (int i = 0; i < this.grid.getItems().size(); i++) {
 			if (this.checkNewLine(columns, i)) {
 				x = margin;
 				y += this.layout.getItemHeight() + this.layout.getSpacer();
@@ -64,33 +68,53 @@ class ImageGridRenderer {
 	}
 
 	public void paint(final GC gc, final int x, final int y, final ImageItem item) {
-		int textHeight = 15;
+		final int textHeight = 15;
 
-		gc.setBackground(bgcolor);
+		gc.setBackground(this.bgcolor);
 		gc.fillRectangle(x, y, this.layout.getItemWidth(), this.layout.getItemHeight() - textHeight);
-		if (grid.isSelected(item)) {
+		if (this.grid.isSelected(item)) {
 			gc.setAlpha(255);
 			gc.setBackground(gc.getDevice().getSystemColor(SWT.COLOR_LIST_SELECTION));
 		} else {
-			gc.setBackground(tagcolor);
+			gc.setBackground(this.tagcolor);
 		}
 
 		gc.fillRectangle(x, y, 10, this.layout.getItemHeight() - textHeight);
-		gc.setFont(font);
-		gc.drawText(item.getName(), x, y + this.layout.getItemHeight() - textHeight, true);
+		gc.setFont(this.font);
+		gc.drawText(item.getName(), x, (y + this.layout.getItemHeight()) - textHeight, true);
 
-		if (Objects.equals(item, grid.getFocusItem())) {
-			// gc.getGCData().uiState = 0; // force focus paint
-			Rectangle frame = focusFrameOSX(x, y, layout, textHeight);
+		drawImage(gc, x, y, item, textHeight);
+		
+		if (Objects.equals(item, this.grid.getFocusItem())) {
+			Rectangle frame = focusFrame(x, y, this.layout, textHeight);
 			gc.drawFocus(frame.x, frame.y, frame.width, frame.height);
 		}
 	}
 
-	private static Rectangle focusFrameOSX(int x, int y, ImageGridLayout layout, int textHeight) {
-		return new Rectangle(x - 1, y - 1, layout.getItemWidth() + 2, layout.getItemHeight() - textHeight + 2);
+	private void drawImage(final GC gc, final int x, final int y, final ImageItem item, final int textHeight) {
+		final Rectangle clipping = gc.getClipping();
+		final int width = this.layout.getItemWidth() - 14;
+		final int height = this.layout.getItemHeight() - textHeight - 4;
+		gc.setClipping(new Rectangle(x + 12, y + 2, width, height));
+		final Image image = this.cache.getImage(item, width, height);
+		
+		if (image != null && !image.isDisposed()) {
+			
+			final ImageData imageData = image.getImageData();
+			final int w = imageData.width;
+			final int h = imageData.height;
+			
+			final int centerX = x + 12 + (width - w) / 2;
+			final int centerY = y + 2 + (height - h) / 2;
+			
+			gc.drawImage(image, centerX, centerY);
+		}
+		
+		gc.setClipping(clipping);
 	}
 
-	private static Rectangle focusFrameWindows(int x, int y, ImageGridLayout layout, int textHeight) {
-		return new Rectangle(x, y, layout.getItemWidth(), layout.getItemHeight() - textHeight);
+	private static Rectangle focusFrame(final int x, final int y, final ImageGridLayout layout, final int textHeight) {
+		return new Rectangle(x - 1, y - 1, layout.getItemWidth() + 2, (layout.getItemHeight() - textHeight) + 2);
 	}
+
 }
