@@ -31,13 +31,13 @@ public class ImageGrid extends Canvas {
 	private ImageItem focusItem = null;
 
 	private final boolean singleSelection = false;
-	
+
 	private final ImageCache cache = new ImageCache(this);
 
 	public ImageGrid(final Composite parent, final int style) {
 		super(parent, style | SWT.V_SCROLL | SWT.DOUBLE_BUFFERED);
 
-		this.addPaintListener(new ImageGridRenderer(layout, this, cache)::onPaint);
+		this.addPaintListener(new ImageGridRenderer(this.layout, this, this.cache)::onPaint);
 		this.getVerticalBar().setVisible(false);
 		this.addControlListener(new ControlAdapter() {
 			@Override
@@ -75,8 +75,7 @@ public class ImageGrid extends Canvas {
 
 				if (ImageGrid.this.layout.elementAt(x, y).isPresent()) {
 					ImageGrid.this.setCursor(ImageGrid.this.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
-				}
-				else {
+				} else {
 					ImageGrid.this.setCursor(null);
 				}
 			}
@@ -121,8 +120,7 @@ public class ImageGrid extends Canvas {
 		this.layout.elementAt(x, y).ifPresent(item -> {
 			if (this.isToggleSelectionModifier(event.stateMask)) {
 				this.toggleSelection(item);
-			}
-			else {
+			} else {
 				this.select(item);
 			}
 
@@ -138,7 +136,8 @@ public class ImageGrid extends Canvas {
 	}
 
 	private void toggleSelection(final ImageItem item) {
-		final Consumer<ImageItem> consumer = this.selection.contains(item) ? this.selection::remove : this.selection::add;
+		final Consumer<ImageItem> consumer = this.selection.contains(item) ? this.selection::remove
+				: this.selection::add;
 		consumer.accept(item);
 	}
 
@@ -147,7 +146,7 @@ public class ImageGrid extends Canvas {
 	}
 
 	private static boolean checkState(final int state, final int flag) {
-		return ((state & flag) == flag);
+		return (state & flag) == flag;
 	}
 
 	private void up(final int stateMask) {
@@ -168,7 +167,7 @@ public class ImageGrid extends Canvas {
 
 	private void navigate(final int offset, final int stateMask) {
 		final int index = this.items.indexOf(this.focusItem) + offset;
-		if ((index >= 0) && (index < this.items.size())) {
+		if (index >= 0 && index < this.items.size()) {
 			final ImageItem item = this.items.get(index);
 
 			if (!this.isToggleSelectionModifier(stateMask)) {
@@ -215,17 +214,18 @@ public class ImageGrid extends Canvas {
 			final ScrollBar scrollBar = this.getVerticalBar();
 			final int yDelta = scrollBar.getSelection();
 
-			final Rectangle viewRange = new Rectangle(clientArea.x, clientArea.y + yDelta, clientArea.width, clientArea.height);
+			final Rectangle viewRange = new Rectangle(clientArea.x, clientArea.y + yDelta, clientArea.width,
+					clientArea.height);
 
-			if (!viewRange.contains(bounds.x, bounds.y) || !viewRange.contains(bounds.x + bounds.width, bounds.y + bounds.height)) {
+			if (!viewRange.contains(bounds.x, bounds.y)
+					|| !viewRange.contains(bounds.x + bounds.width, bounds.y + bounds.height)) {
 				final int distance = this.layout.getMargin();
 				if (viewRange.y > bounds.y) {
 					scrollBar.setSelection(bounds.y - distance);
 
 					this.redraw();
-				}
-				else if (viewRange.y < (bounds.y + bounds.height)) {
-					scrollBar.setSelection(((bounds.y + bounds.height) - clientArea.height) + distance);
+				} else if (viewRange.y < bounds.y + bounds.height) {
+					scrollBar.setSelection(bounds.y + bounds.height - clientArea.height + distance);
 
 					this.redraw();
 				}
@@ -233,11 +233,11 @@ public class ImageGrid extends Canvas {
 		}
 	}
 
-	public boolean isSelected(ImageItem item) {
+	public boolean isSelected(final ImageItem item) {
 		return this.selection.contains(item);
 	}
 
 	public ImageItem getFocusItem() {
-		return focusItem;
+		return this.focusItem;
 	}
 }

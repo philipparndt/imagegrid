@@ -13,16 +13,17 @@ import org.eclipse.swt.widgets.Shell;
 
 public class TestMain {
 
-	public static void main(final String [] args) throws MalformedURLException {
+	public static void main(final String[] args) throws MalformedURLException {
 		final Display display = new Display();
 		final Shell shell = new Shell(display);
 
 		shell.setLayout(new GridLayout());
 
-		ImageDescriptor descriptor = ImageDescriptor.createFromURL(TestMain.class.getResource("picture.png"));
-		
-		ImageDescriptor descriptor2 = ImageDescriptor.createFromURL(new URL("https://avatars3.githubusercontent.com/u/2879650?v=3&s=466"));
-		
+		final ImageDescriptor descriptor = ImageDescriptor.createFromURL(TestMain.class.getResource("picture.png"));
+
+		final ImageDescriptor descriptor2 = ImageDescriptor
+				.createFromURL(new URL("https://avatars3.githubusercontent.com/u/2879650?v=3&s=466"));
+
 		final ImageGrid grid = new ImageGrid(shell, SWT.BORDER);
 		for (int i = 0; i < 100; i++) {
 			grid.addItem(new ImageItem().setName("A " + i).setDescriptor(descriptor));
@@ -34,7 +35,7 @@ public class TestMain {
 
 		final Rectangle clientArea = shell.getClientArea();
 		shell.setBounds(clientArea.x + 10, clientArea.y + 10, 200, 200);
-		shell.open ();
+		shell.open();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();

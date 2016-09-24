@@ -6,7 +6,7 @@ public class ImageItem {
 	private String name;
 	private ImageDescriptor descriptor;
 	private Object data;
-	
+
 	public ImageDescriptor getDescriptor() {
 		return this.descriptor;
 	}
@@ -26,12 +26,12 @@ public class ImageItem {
 
 		return this;
 	}
-	
+
 	public Object getData() {
-		return data;
+		return this.data;
 	}
-	
-	public void setData(Object data) {
+
+	public void setData(final Object data) {
 		this.data = data;
 	}
 }

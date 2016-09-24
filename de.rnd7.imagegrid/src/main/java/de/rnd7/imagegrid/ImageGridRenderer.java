@@ -22,7 +22,7 @@ class ImageGridRenderer {
 	private final Font font;
 	private final Color bgcolor;
 	private final Color tagcolor;
-	
+
 	private final ImageCache cache;
 
 	public ImageGridRenderer(final ImageGridLayout layout, final ImageGrid grid, final ImageCache cache) {
@@ -64,7 +64,7 @@ class ImageGridRenderer {
 	}
 
 	private boolean checkNewLine(final int columns, final int i) {
-		return (i != 0) && ((i % columns) == 0);
+		return i != 0 && i % columns == 0;
 	}
 
 	public void paint(final GC gc, final int x, final int y, final ImageItem item) {
@@ -81,12 +81,12 @@ class ImageGridRenderer {
 
 		gc.fillRectangle(x, y, 10, this.layout.getItemHeight() - textHeight);
 		gc.setFont(this.font);
-		gc.drawText(item.getName(), x, (y + this.layout.getItemHeight()) - textHeight, true);
+		gc.drawText(item.getName(), x, y + this.layout.getItemHeight() - textHeight, true);
 
-		drawImage(gc, x, y, item, textHeight);
-		
+		this.drawImage(gc, x, y, item, textHeight);
+
 		if (Objects.equals(item, this.grid.getFocusItem())) {
-			Rectangle frame = focusFrame(x, y, this.layout, textHeight);
+			final Rectangle frame = focusFrame(x, y, this.layout, textHeight);
 			gc.drawFocus(frame.x, frame.y, frame.width, frame.height);
 		}
 	}
@@ -97,24 +97,23 @@ class ImageGridRenderer {
 		final int height = this.layout.getItemHeight() - textHeight - 4;
 		gc.setClipping(new Rectangle(x + 12, y + 2, width, height));
 		final Image image = this.cache.getImage(item, width, height);
-		
+
 		if (image != null && !image.isDisposed()) {
-			
 			final ImageData imageData = image.getImageData();
 			final int w = imageData.width;
 			final int h = imageData.height;
-			
+
 			final int centerX = x + 12 + (width - w) / 2;
 			final int centerY = y + 2 + (height - h) / 2;
-			
+
 			gc.drawImage(image, centerX, centerY);
 		}
-		
+
 		gc.setClipping(clipping);
 	}
 
 	private static Rectangle focusFrame(final int x, final int y, final ImageGridLayout layout, final int textHeight) {
-		return new Rectangle(x - 1, y - 1, layout.getItemWidth() + 2, (layout.getItemHeight() - textHeight) + 2);
+		return new Rectangle(x - 1, y - 1, layout.getItemWidth() + 2, layout.getItemHeight() - textHeight + 2);
 	}
 
 }

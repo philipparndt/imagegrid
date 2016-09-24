@@ -41,7 +41,7 @@ class ImageGridLayout {
 		final int size = this.grid.getItems().size();
 
 		int rows = size / columns;
-		if ((size % columns) > 0) {
+		if (size % columns > 0) {
 			rows++;
 		}
 		rows = Math.max(1, rows);
@@ -60,21 +60,20 @@ class ImageGridLayout {
 		final List<ImageItem> items = this.grid.getItems();
 
 		final int margin = this.getMargin();
-		return this.indexAt(x - margin, y - margin)
-				.filter(index -> this.boundsOf(index).contains(new Point(x, y)))
+		return this.indexAt(x - margin, y - margin).filter(index -> this.boundsOf(index).contains(new Point(x, y)))
 				.map(items::get);
 	}
 
 	Rectangle boundsOf(final int index) {
 		final int columns = this.getColumns();
 
-		final int row = (index / columns);
-		final int column = (index % columns);
+		final int row = index / columns;
+		final int column = index % columns;
 
 		final int margin = this.getMargin();
 
-		final int x = (column * (this.itemWidth + this.spacer)) + margin;
-		final int y = (row * (this.itemHeight + this.spacer)) + margin;
+		final int x = column * (this.itemWidth + this.spacer) + margin;
+		final int y = row * (this.itemHeight + this.spacer) + margin;
 
 		return new Rectangle(x, y, this.itemWidth, this.itemHeight);
 	}
@@ -83,14 +82,13 @@ class ImageGridLayout {
 		final int columns = this.getColumns();
 
 		final int column = x / (this.itemWidth + this.spacer);
-		final int row = (y / (this.itemHeight + this.spacer));
+		final int row = y / (this.itemHeight + this.spacer);
 
-		final int index = ((row * columns) + column);
+		final int index = row * columns + column;
 		final List<ImageItem> items = this.grid.getItems();
 		if (index < items.size()) {
 			return Optional.of(index);
-		}
-		else {
+		} else {
 			return Optional.empty();
 		}
 	}
